@@ -58,6 +58,7 @@ function connect_vpn(){
             mkauthfile
             open_config=$(decode ${vpn[14]})
             sed "s/#auth-user-pass/auth-user-pass ${AUTH_FILE}/g" <<< "$open_config" > ${vpn[0]}-${vpn[6]}.ovn
+            echo "${vpn[0]}-${vpn[6]} : Working"
             exit 0
         else
             echo "${vpn[0]}-${vpn[6]} : Not Working"
