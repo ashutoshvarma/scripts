@@ -1,4 +1,6 @@
 PORT_TIMEOUT=2
+VPNGATE_API="http://www.vpngate.net/api/iphone/"
+
 AUTH_FILE='vpnauth.txt'
 CACHE_VPN='vpn.cache'
 CACHE_TIMEOUT_DAYS=1
@@ -15,7 +17,7 @@ function getcsv(){
     cache_date=$(date -r "$CACHE_VPN" +%s 2>/dev/null|| echo 0)
     if (( cache_date <= cache_expires )); then
         echo "Refeshing VPN list. This may take a while."
-        curl -L -o $CACHE_VPN http://www.vpngate.net/api/iphone/ 2>/dev/null
+        curl -L -o $CACHE_VPN ${VPNGATE_API} 2>/dev/null
     fi
     egrep -v "[*#]" $CACHE_VPN
 }
