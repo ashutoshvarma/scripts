@@ -19,7 +19,7 @@ function getcsv(){
         # Redirect 1 to 2 because in coonect_vpn we use commant substitition
         # Which capture this msg also
         echo "Refeshing VPN list. This may take a while." 1>&2
-        curl -L -o $CACHE_VPN ${VPNGATE_API} 2>/dev/null
+        curl -# -L -o $CACHE_VPN ${VPNGATE_API} 
     fi
     egrep -v "[*#]" $CACHE_VPN
 }
