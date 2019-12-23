@@ -5,14 +5,14 @@ AUTH_FILE=$(pwd)'/vpnauth.txt'
 CACHE_VPN='vpn.cache'
 CACHE_TIMEOUT_DAYS=1
 
-function mkauthfile(){
+function _mkauthfile(){
     if ! [ -s $AUTH_FILE ]; then
         echo "vpn" > $AUTH_FILE
         echo "vpn" >> $AUTH_FILE
     fi
 }
 
-function getcsv(){
+function _getcsv(){
     cache_expires=$(date -d "now - ${CACHE_TIMEOUT_DAYS} days" +%s)
     cache_date=$(date -r "$CACHE_VPN" +%s 2>/dev/null|| echo 0)
     if (( cache_date <= cache_expires )); then
@@ -24,7 +24,7 @@ function getcsv(){
     egrep -v "[*#]" $CACHE_VPN
 }
 
-function decode(){
+function _decode(){
     echo "$1" | base64 -d 2>/dev/null
 }
 
@@ -32,9 +32,9 @@ function check_port(){
     timeout  ${PORT_TIMEOUT}s /bin/bash -c "echo EOF > /dev/tcp/$1/$2" &>/dev/null || return 1
 }
 
-function check_vpn(){
+function _check_vpn(){
     #OpenVPN config data
-    local oconfig=$(decode $1)   
+    local oconfig=$(_decode $1)   
 
     # Get the hostname and port line ("remote <host> <port> /r/n")                       
     IFS=" " read -a host_port <<< $(grep -Po "^remote\s+.+" <<< "$oconfig")
@@ -55,16 +55,16 @@ function connect_vpn(){
     while read -r line; do
         IFS="," 
         vpn=($line)
-        if check_vpn ${vpn[14]}; then
-            mkauthfile
-            open_config=$(decode ${vpn[14]})
+        if _check_vpn ${vpn[14]}; then
+            _mkauthfile
+            open_config=$(_decode ${vpn[14]})
             sed "s/#auth-user-pass/auth-user-pass ${AUTH_FILE//\//\\/}/g" <<< "$open_config" > ${vpn[0]}-${vpn[6]}.ovn
             echo "${vpn[0]}-${vpn[6]} : Working"
             exit 0
         else
             echo "${vpn[0]}-${vpn[6]} : Not Working"
         fi
-    done <<< $(getcsv)
+    done <<< $(_getcsv)
 }
 
 connect_vpn
