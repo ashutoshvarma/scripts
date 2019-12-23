@@ -2,6 +2,8 @@ PORT_TIMEOUT=2
 VPNGATE_API="http://www.vpngate.net/api/iphone/"
 
 AUTH_FILE=$(pwd)'/vpnauth.txt'
+OPENVPN_DIR="/etc/openvpn"
+
 CACHE_VPN='vpn.cache'
 CACHE_TIMEOUT_DAYS=1
 
@@ -58,7 +60,8 @@ function connect_vpn(){
         if _check_vpn ${vpn[14]}; then
             _mkauthfile
             local open_config=$(_decode ${vpn[14]})
-            sed "s/#auth-user-pass/auth-user-pass ${AUTH_FILE//\//\\/}/g" <<< "$open_config" > ${vpn[0]}-${vpn[6]}.ovn
+            # save openvpn config to /etc/openvpn/ (not using redirection cuz it will lead to permission error.)
+            sed "s/#auth-user-pass/auth-user-pass ${AUTH_FILE//\//\\/}/g" <<< "$open_config" | sudo tee ${OPENVPN_DIR}/${vpn[0]}-${vpn[6]}.ovn &>/dev/null
             echo "${vpn[0]}-${vpn[6]} : Working"
             exit 0
         else
