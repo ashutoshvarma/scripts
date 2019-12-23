@@ -13,8 +13,8 @@ function _mkauthfile(){
 }
 
 function _getcsv(){
-    cache_expires=$(date -d "now - ${CACHE_TIMEOUT_DAYS} days" +%s)
-    cache_date=$(date -r "$CACHE_VPN" +%s 2>/dev/null|| echo 0)
+    local cache_expires=$(date -d "now - ${CACHE_TIMEOUT_DAYS} days" +%s)
+    local cache_date=$(date -r "$CACHE_VPN" +%s 2>/dev/null|| echo 0)
     if (( cache_date <= cache_expires )); then
         # Redirect 1 to 2 because in coonect_vpn we use commant substitition
         # Which capture this msg also
@@ -54,10 +54,10 @@ function _check_vpn(){
 function connect_vpn(){
     while read -r line; do
         IFS="," 
-        vpn=($line)
+        local vpn=($line)
         if _check_vpn ${vpn[14]}; then
             _mkauthfile
-            open_config=$(_decode ${vpn[14]})
+            local open_config=$(_decode ${vpn[14]})
             sed "s/#auth-user-pass/auth-user-pass ${AUTH_FILE//\//\\/}/g" <<< "$open_config" > ${vpn[0]}-${vpn[6]}.ovn
             echo "${vpn[0]}-${vpn[6]} : Working"
             exit 0
