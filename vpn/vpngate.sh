@@ -1,7 +1,7 @@
 PORT_TIMEOUT=2
 VPNGATE_API="http://www.vpngate.net/api/iphone/"
 
-AUTH_FILE='vpnauth.txt'
+AUTH_FILE=$(pwd)'/vpnauth.txt'
 CACHE_VPN='vpn.cache'
 CACHE_TIMEOUT_DAYS=1
 
@@ -58,7 +58,7 @@ function connect_vpn(){
         if check_vpn ${vpn[14]}; then
             mkauthfile
             open_config=$(decode ${vpn[14]})
-            sed "s/#auth-user-pass/auth-user-pass ${AUTH_FILE}/g" <<< "$open_config" > ${vpn[0]}-${vpn[6]}.ovn
+            sed "s/#auth-user-pass/auth-user-pass ${AUTH_FILE//\//\\/}/g" <<< "$open_config" > ${vpn[0]}-${vpn[6]}.ovn
             echo "${vpn[0]}-${vpn[6]} : Working"
             exit 0
         else
