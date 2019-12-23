@@ -55,7 +55,6 @@ function connect_vpn(){
     while read -r line; do
         IFS="," 
         vpn=($line)
-        check_vpn ${vpn[14]}
         if check_vpn ${vpn[14]}; then
             mkauthfile
             open_config=$(decode ${vpn[14]})
