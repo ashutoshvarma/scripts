@@ -16,7 +16,9 @@ function getcsv(){
     cache_expires=$(date -d "now - ${CACHE_TIMEOUT_DAYS} days" +%s)
     cache_date=$(date -r "$CACHE_VPN" +%s 2>/dev/null|| echo 0)
     if (( cache_date <= cache_expires )); then
-        echo "Refeshing VPN list. This may take a while."
+        # Redirect 1 to 2 because in coonect_vpn we use commant substitition
+        # Which capture this msg also
+        echo "Refeshing VPN list. This may take a while." 1>&2
         curl -L -o $CACHE_VPN ${VPNGATE_API} 2>/dev/null
     fi
     egrep -v "[*#]" $CACHE_VPN
