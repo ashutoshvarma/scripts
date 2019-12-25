@@ -15,13 +15,43 @@ OPENVPN_DIR="/etc/openvpn/client"
 OPENVPN_CLIENT_SERVICE="openvpn-client"
 
 AUTH_FILE=${OPENVPN_DIR}/'vpnauth'
+UP_FILE=${OPENVPN_DIR}/'up.sh'
+DOWN_FILE=${OPENVPN_DIR}/'down.sh'
+
 CACHE_VPN='vpn.cache'
 CACHE_TIMEOUT_DAYS=1
 
+function _mkhelper_files(){
+    _mkauthfile
+
+    if ! [[ -s $UP_FILE ]] || ! [[ -x $UP_FILE ]]; then
+        echo "$(_up_script)" | sudo tee $UP_FILE >/dev/null
+        sudo chmod +x $UP_FILE
+    fi
+
+    if ! [[ -s $DOWN_FILE ]] || ! [[ -x $DOWN_FILE ]]; then
+        echo "$(_down_script)" | sudo tee $DOWN_FILE >/dev/null
+        sudo chmod +x $DOWN_FILE
+    fi
+}
+
 function _mkauthfile(){
-    if ! [ -s $AUTH_FILE ]; then
+    if ! [[ -s $AUTH_FILE ]]; then
         printf "vpn\nvpn" | sudo tee $AUTH_FILE >/dev/null
     fi
+}
+
+function _up_script(){
+    printf "%s \n" "#!/usr/bin/env bash"
+    printf "%s \n" "echo \"Changing DNS in resolv.conf\""
+    printf "%s \n" "mv -f /etc/resolv.conf /etc/resolv.conf.bak "
+    printf "%s \n" "printf 'nameserver 1.0.0.1 \nnameserver 8.8.8.8' > /etc/resolv.conf "  
+}
+
+function _down_script(){
+    printf "%s \n" "#!/usr/bin/env bash"
+    printf "%s \n" "echo \"Restoring resolv.conf\""
+    printf "%s \n" "mv -f /etc/resolv.conf.bak /etc/resolv.conf "
 }
 
 function _getcsv(){
@@ -88,7 +118,9 @@ function _connect_vpn(){
 
     # save openvpn config to /etc/openvpn/ (not using redirection cuz it will lead to permission error.)
     sed "s/#auth-user-pass/auth-user-pass ${AUTH_FILE//\//\\/}/g" <<< "$open_config" | sudo tee ${config_file} &>/dev/null
-    
+    # Add up and down scripts to fix DNS (should have use update-systemd-resolved but that would increase dependancies)
+    printf "%s \n%s \n%s \n" "script-security 2" "up ${UP_FILE}" "down ${DOWN_FILE}" | sudo tee -a ${config_file} &>/dev/null
+
     if is_openvpn_running "$vpn_name";then
         kill_openvpn "$vpn_name" && return 2
     fi
@@ -137,5 +169,5 @@ function vpn(){
     done <<< $(_getcsv)
 }
 
-_mkauthfile
+_mkhelper_files
 vpn
