@@ -122,7 +122,7 @@ function _connect_vpn(){
     printf "%s \n%s \n%s \n" "script-security 2" "up ${UP_FILE}" "down ${DOWN_FILE}" | sudo tee -a ${config_file} &>/dev/null
 
     if is_openvpn_running "$vpn_name";then
-        kill_openvpn "$vpn_name" && return 2
+        kill_openvpn "$vpn_name" || return 2
     fi
 
     sudo systemctl start ${OPENVPN_CLIENT_SERVICE}@${vpn_name}
