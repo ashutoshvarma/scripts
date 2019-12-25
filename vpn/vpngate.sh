@@ -45,7 +45,7 @@ function _up_script(){
     printf "%s \n" "#!/usr/bin/env bash"
     printf "%s \n" "echo \"Changing DNS in resolv.conf\""
     printf "%s \n" "mv -f /etc/resolv.conf /etc/resolv.conf.bak "
-    printf "%s \n" "printf 'nameserver 1.0.0.1 \nnameserver 8.8.8.8' > /etc/resolv.conf "  
+    printf "%s \n" "printf  \"%s \n%s \n\" \"nameserver 1.0.0.1\" \"nameserver 8.8.8.8\" > /etc/resolv.conf "  
 }
 
 function _down_script(){
