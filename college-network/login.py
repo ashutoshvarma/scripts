@@ -58,7 +58,9 @@ def time_milli() -> int:
     return int(time() * 1000)
 
 
-def log(msg, type="INFO", stdout=True, file=None) -> None:
+def log(msg, type="INFO", stdout=True, file=LOG_PATH) -> None:
+    if not file:
+        file = LOG_PATH
     ctime = strftime("%a, %d %b %Y %H:%M:%S", localtime())
     msg = f"{ctime}: [{type.upper()}] {msg} {linesep}"
     if stdout:
@@ -127,15 +129,14 @@ def parseargs():
     parser.add_argument(
         "username", type=str, help="Your username. Usually it is your 11 digit roll no.")
     parser.add_argument("password", type=str, help="Password to login with.")
+
+    parser.add_argument("-o", "--log", type=str, help="Path of Log file.")
     parser.add_argument("-v", "--verbose", action="store_true")
 
     return parser.parse_args()
 
 
-def main():
-    args = parseargs()
-    login(args.username, args.password, args.verbose)
-
-
 if __name__ == "__main__":
-    main()
+    args = parseargs()
+    LOG_PATH=args.log
+    login(args.username, args.password, args.verbose)
