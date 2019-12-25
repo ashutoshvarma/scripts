@@ -12,8 +12,6 @@ CACHE_TIMEOUT_DAYS=1
 
 function _mkauthfile(){
     if ! [ -s $AUTH_FILE ]; then
-        # echo "vpn" > $AUTH_FILE
-        # echo "vpn" >> $AUTH_FILE
         printf "vpn\nvpn" | sudo tee $AUTH_FILE >/dev/null
     fi
 }
@@ -100,12 +98,6 @@ function _connect_vpn(){
     done
     return 0
 
-    # if is_openvpn_running; then
-    #     echo "Connected to ${vpn_name}."
-    # else
-    #     echo "Failed to Connect to ${vpn_name}"
-    #     return 1
-    # fi
 }
 
 
