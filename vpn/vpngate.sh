@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 PORT_TIMEOUT=2
 VPNGATE_API="http://www.vpngate.net/api/iphone/"
 
