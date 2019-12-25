@@ -99,23 +99,26 @@ def login(username: str, password: str, verbose: bool):
             response_xml = resp.text
             # Check for sucessful login
             if xml_search_str['sucess'] in response_xml:
-                log("Sign IN Sucessful.", "success")
+                log(f"Sign IN Sucessful. Username-{username}", "success")
                 exit(0)
             elif xml_search_str['failed'] in response_xml:
-                log(xml_search_str['failed'], "error")
+                log(xml_search_str['failed'] +
+                    f". Username-{username}", "error")
                 exit(2)
             elif xml_search_str['max_limit'] in response_xml:
-                log(xml_search_str['max_limit'], "error")
+                log(xml_search_str['max_limit'] +
+                    f". Username-{username}", "error")
                 exit(3)
             elif xml_search_str['connection_problem'] in response_xml:
-                log(xml_search_str['connection_problem'], "error")
+                log(xml_search_str['connection_problem'] +
+                    f". Username-{username}", "error")
                 exit(4)
             else:
                 msg = scrap_xml_msg(response_xml)
                 if msg:
                     log(msg, "error")
                 else:
-                    log("ERROR: Unkown Error Occurred. ResponseXML:-" +
+                    log(f"ERROR: Unkown Error Occurred with Username-{username}. ResponseXML:-" +
                         linesep + response_xml, "error")
                 exit(5)
         else:
@@ -138,5 +141,5 @@ def parseargs():
 
 if __name__ == "__main__":
     args = parseargs()
-    LOG_PATH=args.log
+    LOG_PATH = args.log
     login(args.username, args.password, args.verbose)
