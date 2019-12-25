@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
+#: Title        : VPNGate connect script
+#: Date         : 25-12-2019
+#: Author       : Ashutosh Varma (ashutoshvarma11@live.com)
+#  License      : MIT
+#: Version      : 0.1
+#: Description  : Connects to VPNGate community server using openvpn
+#: NOTE         : It will kill all openvpn process before starting vpn.
+
 
 PORT_TIMEOUT=2
 VPNGATE_API="http://www.vpngate.net/api/iphone/"
