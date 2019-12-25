@@ -1,4 +1,16 @@
 #!/usr/bin/env python3
+"""
+Exit Codes:- 
+    0 - Sucessfully SIGN IN.
+    1 - Connection Error
+    2 - Invalid Username/Password
+    3 - Max Limit Reached
+    4 - Login API connection problem
+    5 - Unknown Response from Login API
+
+   -1 - Python version is lower than 3.6
+   -2 - Requests module not installed
+"""
 
 __author__ = "Ashutosh Varma"
 __copyright__ = "Copyright 2019, Ashutosh Varma"
@@ -128,12 +140,15 @@ def login(username: str, password: str, verbose: bool):
 
 def parseargs():
     parser = argparse.ArgumentParser(
-        description="Python Script to login to GGSIPU college network.")
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="Python Script for logging into GGSIPU college network.",
+        epilog=__doc__)
     parser.add_argument(
         "username", type=str, help="Your username. Usually it is your 11 digit roll no.")
     parser.add_argument("password", type=str, help="Password to login with.")
 
-    parser.add_argument("-o", "--log", type=str, help="Path of Log file.")
+    parser.add_argument("-o", "--log", type=str,
+                        help="Path of Log file.", metavar="logfile")
     parser.add_argument("-v", "--verbose", action="store_true")
 
     return parser.parse_args()
