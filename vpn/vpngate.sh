@@ -72,23 +72,26 @@ function is_openvpn_running(){
     # sudo systemctl status ${OPENVPN_CLIENT_SERVICE}@"$1" --no-pager
 }
 
+
+# Connects to VPNGate vpn using base64 encoded config file
+# Parameters:
+#   Single row of vpngate api csv as positional args
+# Returns:
+#   0 - Connected
+#   1 - OpenVPN Error
+#   2 - Cannot kill other openvpn process
 function _connect_vpn(){
     local vpn=("$@")
     local open_config=$(_decode ${vpn[14]})
     local vpn_name=${vpn[0]}-${vpn[6]}
     local config_file=${OPENVPN_DIR}/${vpn_name}.conf
 
-
     # save openvpn config to /etc/openvpn/ (not using redirection cuz it will lead to permission error.)
     sed "s/#auth-user-pass/auth-user-pass ${AUTH_FILE//\//\\/}/g" <<< "$open_config" | sudo tee ${config_file} &>/dev/null
     
     if is_openvpn_running "$vpn_name";then
-        kill_openvpn "$vpn_name" && (echo "Cannot kill running OpenVPN process. Retry after killing all instances of openvpn"; exit 1)
-    else
-        echo NOVPN RUNNING
+        kill_openvpn "$vpn_name" && return 2
     fi
-
-    echo "Trying to connect to ${vpn_name}."
 
     sudo systemctl start ${OPENVPN_CLIENT_SERVICE}@${vpn_name}
 
@@ -113,11 +116,23 @@ function vpn(){
     while read -r line; do
         IFS="," 
         local vpn=($line)
+        local vpn_name=${vpn[0]}-${vpn[6]}
+
+        # Check VPN
         if _check_vpn ${vpn[14]}; then
-            echo "${vpn[0]}-${vpn[6]} : Working"
-            _connect_vpn "${vpn[@]}" && exit 0
+            echo "'$vpn_name' : Working"
+            echo "Trying to connect to ${vpn_name}."
+
+            # Connecting to VPN
+            if ! local ec=$(_connect_vpn "${vpn[@]}" || echo $?); then
+                ((ec == 1)) && { echo 'Failed to connect to "${vpn_name}".'; echo;}
+                ((ec == 2)) && { echo "Cannot kill running OpenVPN process. Retry after killing all instances of openvpn"; exit 2; }
+            else
+                echo "Sucessuflly connected to $vpn_name."
+                exit 0
+            fi
         else
-            echo "${vpn[0]}-${vpn[6]} : Not Working"
+            echo "${vpn_name} : Not Working"
         fi
     done <<< $(_getcsv)
 }
