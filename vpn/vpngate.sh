@@ -98,7 +98,7 @@ function kill_openvpn(){
 }
 
 function is_openvpn_running(){
-    pgrep openvpn || return 1
+    pgrep openvpn &>/dev/null || return 1
     # sudo systemctl status ${OPENVPN_CLIENT_SERVICE}@"$1" --no-pager
 }
 
