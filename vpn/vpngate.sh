@@ -55,7 +55,7 @@ function _down_script(){
 }
 
 function _getcsv(){
-    local cache_expires=$(date -d "now - ${CACHE_TIMEOUT_DAYS} days" +%s)
+    local cache_expires=$(date -d "now - ${CACHE_TIMEOUT_DAYS} days" +%s 2>/dev/null || echo 0)
     local cache_date=$(date -r "$CACHE_VPN" +%s 2>/dev/null|| echo 0)
     if (( cache_date <= cache_expires )); then
         # Redirect 1 to 2 because in coonect_vpn we use commant substitition
