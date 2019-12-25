@@ -156,12 +156,14 @@ function vpn(){
             echo "Trying to connect to ${vpn_name}."
 
             # Connecting to VPN
-            if ! local ec=$(_connect_vpn "${vpn[@]}" || echo $?); then
-                ((ec == 1)) && { echo 'Failed to connect to "${vpn_name}".'; echo;}
-                ((ec == 2)) && { echo "Cannot kill running OpenVPN process. Retry after killing all instances of openvpn"; exit 2; }
-            else
+            _connect_vpn "${vpn[@]}"
+            ec=$?
+            if ((ec == 0)); then
                 echo "Sucessuflly connected to $vpn_name."
                 exit 0
+            else
+                ((ec == 1)) && { echo 'Failed to connect to "${vpn_name}".'; echo;}
+                ((ec == 2)) && { echo "Cannot kill running OpenVPN process. Retry after killing all instances of openvpn"; exit 2; }
             fi
         else
             echo "${vpn_name} : Not Working"
