@@ -17,6 +17,8 @@ CONNECTION_TIMEOUT='5'
 #UNIX Timestamp, seconds from 1 Jan 1970 till now.
 epoch_time="date +%s"
 
+SUCESS_STR="You are signed in as"
+
 function _curl_post(){
     data="mode=191&username=${1}&password=${2}&a=$(${epoch_time})&producttype=0"
 
@@ -37,9 +39,11 @@ function _curl_post(){
 function login(){
     if msg=$(echo $(_curl_post "$1" "$2") | grep -Po "(?<=<message><!\[CDATA\[)(.+?)(?=]]><\/message>)"); then
         echo "$msg"
+        grep "$SUCESS_STR" <<< "$msg" &>/dev/null || return 1
     else
         echo "[ERROR]: Cannot connect to the login portal. Check network connection."
         echo "Info: Your MAC might be blacklisted, so try changing that."
+        return 1
     fi
 }
 
